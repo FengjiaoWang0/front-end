@@ -1,0 +1,70 @@
+<html>
+    <body>
+        <canvas id="sinewave" width="1280" height="360"></canvas>
+        <script type="text/javascript">
+            //Microphone volume goes here
+            var volume = 0.15;
+
+            //Animation config
+            var animSpeed = 0.005;
+            var animPrecision = 4; //Higher numbers are lower precision
+
+            //Canvas properties
+            var cv = document.getElementById("sinewave");
+            var cvContext = cv.getContext("2d");
+            var cvWidth = cv.width;
+            var cvHeight = cv.height;
+            
+            //Animation properties
+            var animY = (cvHeight*0.5);
+            var animAmplitude = (cvHeight*0.25)*volume;
+            var animFrequency = (1/96) + (volume/96); //96KHz
+            var animPhase = 0;
+            var animState = 0;
+            var animStep = (animFrequency*animPrecision);
+
+            //Initialize wave coordinates
+            var x1 = animY, 
+                y1 = animY, 
+                x2 = animY, 
+                y2 = animY;
+
+            //Animation
+            function animate() {
+                //Loop animation
+                requestAnimationFrame(animate);
+
+                //Clear canvas
+                cvContext.clearRect(0, 0, cvWidth, cvHeight);
+
+                //Initialize wave phase
+                animState -= animSpeed + (volume*0.5);
+                animPhase = animState;
+
+                //Draw sine wave
+                var animX;
+                for (animX = 0; animX < cvWidth; animX += animPrecision) {
+                    //Increase wave phase
+                    animPhase += animStep;
+
+                    //Get coordinates to draw line
+                    x1 = animX;
+                    y1 = animY + (Math.sin(animPhase)*animAmplitude);
+                    x2 = animX + animPrecision;
+                    y2 = animY + (Math.sin(animPhase + animStep)*animAmplitude);
+
+                    //Draw primary wave line
+                    cvContext.beginPath();
+                    cvContext.strokeStyle = "#4DCC16";
+                    cvContext.lineWidth = 5;
+                    cvContext.moveTo(x1, y1);
+                    cvContext.lineTo(x2, y2);
+                    cvContext.stroke();
+                }
+            }
+
+            //Perform animation
+            animate();
+        </script>
+    </body>
+</html>

@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>博世软件创新</title>
+    <!-- <link rel="stylesheet" href="css/reset.css"> -->
+    <style>
+        .header{
+        width:100%;
+        height:120px;
+        background:#1290e4;
+        }
+        
+        .text p {
+            margin-top: 8px;
+        }
+        
+        .photoArea {
+            width: 40%;
+            height: 30px;
+            text-align: center;
+            line-height: 28px;
+            border-radius: 20px;
+            position: relative;
+            background: #1290e4;
+            margin-left: 30%;
+             margin-top: 4px;
+           /*  margin-bottom: 35%;  */
+        }
+        
+        .photoArea input {
+            position: absolute;
+            top: 0px;
+            left: 0px;
+            width: 100%;
+            height: 30px;
+            opacity: 0;
+        }
+        
+        .photoArea img {
+            width: 25px;
+        }
+        
+        .dialog {
+            width: 80%;
+            height: 160px;
+            background: #fff;
+            left: 10%;
+            top: 50%;
+            margin-top: -80px;
+            position: fixed;
+            border-radius: 10px;
+            z-index: 222;
+            display: none
+        }
+        
+        .dialog .info p {
+            text-align: center;
+            margin-top: 40px;
+        }
+        
+        .dialog .bar {
+            width: 90%;
+            height: 3px;
+            background: #ddd;
+            margin: 10px auto;
+        }
+        
+        .dialog .inner {
+            width: 0%;
+            height: 3px;
+            background: rgb(0, 169, 229);
+        }
+        
+        .dialog .hr {
+            width: 100%;
+            height: 1px;
+            background: #ddd;
+            margin-top: 30px;
+        }
+        
+        .dialog .cancel {
+            color: #353535;
+            font-size: 18px;
+            text-align: center;
+            width: 100px;
+            margin: 5px auto;
+            height: 40px;
+            line-height: 40px;
+        }
+        
+        .bg {
+            background-color: rgba(0, 0, 0, 0.6);
+            width: 100vw;
+            height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="header">
+        <!-- <img src="https://ddim-production.oss-cn-hangzhou.aliyuncs.com/dande_weixin_mp/ddip/entry/identify/header.jpg" alt="" style="width:100%;display:block">
+    -->
+    </div>
+    <div class="con">
+        <img src="images/guide.png" alt="" style="width:80%;height:90%;display:block;margin: 0 auto;">
+    </div>
+    <!--div class="text" style="margin:0 auto;width:80%;">
+        <p>① 拍照时,请保持手稳定，确保聚焦</p>
+        <p>② 只要一次核查成功，即可确定为真品</p>
+    </div-->
+      <div class="photoArea">
+
+        <img src="images/camera.png" alt="">
+
+        <input type="file" onchange="test()" id="file"  accept="image/*">
+    </div>
+  <!-- 进度框 -->
+    <div class="dialog">
+        <div class="info">
+            <p id="text1">正在上传...<span id="percent">0</span>%<span id="time"></span></p>
+            <p id="text2" style="display:none">正在核查...</p>
+        </div>
+        <div class="bar">
+            <div class="inner"></div>
+        </div>
+        <div class="hr"></div>
+        <p class="cancel" id="btnCancel">取消</p>
+
+    </div>
+    <!-- 遮罩 -->
+    <div class="bg"></div>
+
+<script src="js/jquery-1.12.4.min.js"></script>
+<script src="js/mobile-detect.min.js"></script>
+<script src="http://res.wx.qq.com/open/js/jweixin-1.2.0.js"></script>
+<script src="js/jquery.cookie.js"></script>
+
+<script>
+    var flag = 0;
+    $("#btnCancel").click(function() {
+        $(".bg").css("display", "none");
+        $(".dialog").css("display", "none");
+        flag = 1;
+        window.location.href = "index.html";
+
+    });
+    
+    function test() {
+            var maxsize = 100 * 1024;
+            $(".bg").css("display", "block");
+            $(".dialog").css("display", "block");
+            var file = document.getElementById("file").files[0];
+            console.log(file);
+            var reader = new FileReader();
+            reader.onload = function () {
+                 var result = this.result;
+                 var img = new Image();
+                 img.src = result;
+ 
+                 //如果图片大小小于200kb，则直接上传
+                 if (result.length <= maxsize) {
+                     upload(result, file.type);
+                     return;
+                 }
+ 
+ //                图片加载完毕之后进行压缩，然后上传
+                 if (img.complete) {
+                     callback();
+                 } else {
+                     img.onload = callback;
+                 }
+ 
+                 function callback() {
+                     var data = compress(img);
+                     upload(data,file.type);
+                 }
+             };
+ 
+             reader.readAsDataURL(file);
+         }
+    
+    //图片进行压缩
+    function compress(img) {
+        var canvas = document.createElement("canvas");
+        var ctx = canvas.getContext('2d');
+        
+        // 瓦片canvas
+        var tCanvas = document.createElement("canvas");
+        var tctx = tCanvas.getContext("2d");
+        var maxsize = 100 * 1024;
+
+        var initSize = img.src.length;
+        var width = img.width;
+        var height = img.height;
+
+        //如果图片大于四百万像素，计算压缩比并将大小压至400万以下
+        var ratio;
+        if ((ratio = width * height / 4000000)>1) {
+            ratio = Math.sqrt(ratio);
+            width /= ratio;
+            height /= ratio;
+        }else {
+            ratio = 1;
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+
+//        铺底色
+        ctx.fillStyle = "#fff";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        //如果图片像素大于100万则使用瓦片绘制
+        var count;
+        if ((count = width * height / 1000000) > 1) {
+            count = ~~(Math.sqrt(count)+1); //计算要分成多少块瓦片
+
+//            计算每块瓦片的宽和高
+            var nw = ~~(width / count);
+            var nh = ~~(height / count);
+
+            tCanvas.width = nw;
+            tCanvas.height = nh;
+
+            for (var i = 0; i < count; i++) {
+                for (var j = 0; j < count; j++) {
+                    tctx.drawImage(img, i * nw * ratio, j * nh * ratio, nw * ratio, nh * ratio, 0, 0, nw, nh);
+
+                    ctx.drawImage(tCanvas, i * nw, j * nh, nw, nh);
+                }
+            }
+        } else {
+            ctx.drawImage(img, 0, 0, width, height);
+        }
+
+        //进行最小压缩image/jpeg
+        var ndata = canvas.toDataURL("image/jpeg", 0.1);
+
+        console.log("压缩前：" + initSize);
+        console.log("压缩后：" + ndata.length);
+        console.log("压缩率：" + ~~(100 * (initSize - ndata.length) / initSize) + "%");
+
+        tCanvas.width = tCanvas.height = canvas.width = canvas.height = 0;
+
+        return ndata;
+    }
+    var xhr;
+    var ot;//
+    var oloaded;
+    //进行上传图片
+    function upload(basestr, type) {
+        var text = window.atob(basestr.split(",")[1]);
+        var buffer = new ArrayBuffer(text.length);
+        var ubuffer = new Uint8Array(buffer);
+        var pecent = 0 , loop = null;
+
+        for (var i = 0; i < text.length; i++) {
+            ubuffer[i] = text.charCodeAt(i);
+        }
+
+        var Builder = window.WebKitBlobBuilder||window.MozBlobBuilder;
+        var blob;
+
+        if (Builder) {
+            var builder = new Builder();
+            builder.append(buffer);
+            blob = builder.getBlob(type);
+        } else {
+            blob = new window.Blob([buffer], {type: type});
+        }
+
+        var xhr = new XMLHttpRequest();
+        var formdata = new FormData();
+        formdata.append("file", blob);
+
+        xhr.open("post", "http://localhost:8081/uploadTest",true);
+        xhr.onreadystatechange = function () {
+            console.log("响应结果：" + xhr.responseText);
+            if (xhr.readyState == 4 && xhr.status == 200) {
+                var data=eval("("+xhr.responseText+")");
+                
+            }
+        };
+        xhr.onload = uploadComplete; //请求完成
+        xhr.onerror =  uploadFailed; //请求失败
+        xhr.upload.onprogress = progressFunction;
+        xhr.upload.onloadstart = function(){//上传开始执行方法
+                ot = new Date().getTime();   //设置上传开始时间
+                oloaded = 0;//设置上传开始时，以上传的文件大小为0
+            };
+        xhr.send(formdata);
+    };
+
+     //上传进度实现方法，上传过程中会频繁调用该方法
+        function progressFunction(e) {
+             var percentageDiv = document.getElementById("percent");
+             // event.total是需要传输的总字节，event.loaded是已经传输的字节。如果event.lengthComputable不为真，则event.total等于0
+             if (e.lengthComputable) {//
+                 percentageDiv.innerHTML = Math.round(e.loaded / e.total * 100);
+                 $(".inner").css("width", document.getElementById("percent").innerHTML + '%')
+             }
+            
+            var time = document.getElementById("time");
+            var nt = new Date().getTime();//获取当前时间
+            var pertime = (nt-ot)/1000; //计算出上次调用该方法时到现在的时间差，单位为s
+            ot = new Date().getTime(); //重新赋值时间，用于下次计算
+            
+            var perload = e.loaded - oloaded; //计算该分段上传的文件大小，单位b       
+            oloaded = e.loaded;//重新赋值已上传文件大小，用以下次计算
+        
+            //上传速度计算
+            var speed = perload/pertime; //单位b/s
+            var bspeed = speed;
+            var units = 'b/s';//单位名称
+            if(speed/1024>1){
+                speed = speed/1024;
+                units = 'k/s';
+            }
+            if(speed/1024>1){
+                speed = speed/1024;
+                units = 'M/s';
+            }
+            speed = speed.toFixed(1);
+            //剩余时间
+            var resttime = ((e.total-e.loaded)/bspeed).toFixed(1);
+            time.innerHTML = '，速度：'+speed+units+'，剩余时间：'+resttime+'s';
+               if(bspeed==0)
+                time.innerHTML = '上传已取消';
+        }
+        //上传成功响应
+        function uploadComplete(e) {
+            $("#text1").css("display", "none");
+            $("#text2").css("display", "block");
+             console.log("上传成功,后台正在校验" );
+        }
+        //上传失败
+        function uploadFailed(e) {
+           console.log("上传失败" );
+        }
+        //取消上传
+        function cancleUploadFile(){
+            xhr.abort();
+        }
+
+</script>
+</body>
+</html>

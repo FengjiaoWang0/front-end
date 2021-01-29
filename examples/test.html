@@ -1,0 +1,83 @@
+<!--
+ * @Description: 
+ * @Version: 2.0
+ * @Autor: fengjiao
+ * @Date: 2019-10-31 21:16:04
+ * @LastEditors: fengjiao
+ * @LastEditTime: 2020-09-23 18:00:40
+--> 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <link rel="stylesheet" type="text/css" href="test.css">
+    <script src="test.js"></script>
+
+    <style>
+            ul {
+                list-style-type: none;
+                margin: 0;
+                padding: 0;
+                overflow: hidden;
+                background-color: #333;
+            }
+            
+            li {
+                float: left;
+            }
+            
+            li a {
+                display: block;
+                color: white;
+                text-align: center;
+                padding: 14px 16px;
+                text-decoration: none;
+            }
+            
+            li a:hover:not(.active) {
+                background-color: #111;
+            }
+            
+            .active {
+                background-color: #4CAF50;
+            }
+            /* 除了最后一个选项(last-child) 其他的都添加分割线 */
+            li {
+                border-right: 1px solid #bbb;
+            }
+            
+            li:last-child {
+                border-right: none;
+            }
+            </style>
+</head>
+
+<body style="text-align:center;">
+    <div class="tooltip">鼠标移动到这
+        <span class="tooltiptext">提示文本</span>
+    </div>
+
+    <h1 style="background-color:#4CAF50">
+       这是个测试
+    </h1>
+    <ul>
+        <li><a href="#home">主页</a></li>
+        <li><a href="#news">新闻</a></li>
+        <li><a href="#contact">联系</a></li>
+        <li style="float:right"><a class="active" href="#about">关于</a></li>
+    </ul>
+    <div class="box">
+        <!-- <div class="box1">一个盒子</div> -->
+    </div>
+    <div class="box1">一个盒子</div>
+    <form oninput="total.value=parseInt(price.value)*parseInt(number.value)">
+        <input type="range" id="price" value="500">
+        *<input type="number" id="number" value="1">
+        =<output name="total" for="price number"></output>
+    </form>
+   
+</body>
+</html>

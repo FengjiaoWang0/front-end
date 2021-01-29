@@ -1,0 +1,137 @@
+<!--
+ * @Description: 
+ * @Version: 2.0
+ * @Autor: fengjiao
+ * @Date: 2020-08-07 13:38:04
+ * @LastEditors: fengjiao
+ * @LastEditTime: 2020-08-26 17:22:19
+-->
+<html>
+<body>
+    <div id="preview">
+        <h1>Preview:</h1>
+        <video id="video" width="640" height="480" style="background-color: black;" autoplay></video>
+        <br>
+        <!-- <button id="snap" onclick="takePhoto()">Take Photo</button> -->
+        <button id="snap" onclick="sendPhoto()">Send Photo</button>
+    </div>
+    <br>
+    <div id="result" style="word-break: break-all;">
+        <h1>Photo:</h1>
+        <canvas id="canvas" width="640" height="480" style="background-color: black;"></canvas>
+        <br>
+        <h1>detected_results:</h1>
+        <!-- <img src="image.src" alt="要上传的图片"> -->
+        <!-- <img src={{image}}> -->
+        <!-- <canvas id="result" width="640" height="480" style="background-color: black;"></canvas> -->
+        <br>
+        <h1>Base64:</h1>
+        <p id="base64"></p>
+    </div>
+
+    <script type="text/javascript">
+    // Get video element
+    var video = document.getElementById('video');
+
+    // Show live camera in video element
+    if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+        navigator.mediaDevices.getUserMedia({ video: true }).then(function(stream) {
+            video.srcObject = stream;
+            video.play();
+        });
+    }
+
+    // Take photo
+    function takePhoto() {
+        // Get elements for taking the snapshot
+        var canvas = document.getElementById('canvas');
+        var context = canvas.getContext('2d');
+        var video = document.getElementById('video');
+
+        // Draw the current contents of the video to a canvas
+        context.drawImage(video, 0, 0, 640, 480);
+
+        // Convert canvas to base64 (also an image)
+        // var image = new Image();
+        // image.src = canvas.toDataURL("image/png");
+
+        // Show base64
+        // document.getElementById("base64").innerHTML = image.src;
+    }
+    function sendPhoto(){
+        takePhoto()
+        var canvas = document.getElementById('canvas');
+        var image = new Image();
+        image.src = canvas.toDataURL("image/png");
+        // var blobImg = this.convertBase64UrlToBlob(image.src);
+        // console.log(blobImg);
+
+        var formData = new FormData();
+        formData.append('image',image.src);
+        // console.log(formData.get("image"));
+    
+        var xmlhttp;
+        if (window.XMLHttpRequest)
+            {// code for IE7+, Firefox, Chrome, Opera, Safari
+                xmlhttp =new XMLHttpRequest();
+            }
+        else
+            {// code for IE6, IE5
+            xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
+            }
+        xmlhttp.onreadystatechange=function()
+            {
+            if (xmlhttp.readyState==4 && xmlhttp.status==200)
+                {
+                console.log(xmlhttp.responseText)
+                // var cv = document.getElementById('result');
+                // var context = cv.getContext('2d');
+                // var video = document.getElementById('video');
+
+                // // Draw the current contents of the video to a canvas
+                // context.drawImage(video, 0, 0, 640, 480);
+                // var image = new Image();
+                // img.src = base64;
+                // document.getElementById("result").innerHTML=img.src;
+                // document.getElementById("result").innerHTML=xmlhttp.responseText;
+                }
+            }
+        xmlhttp.open("POST","http://192.168.9.167:7011/human_detection",true);
+        xmlhttp.setRequestHeader("Content-type","multipart/form-data");
+        // console.log("image = "+ image.src)
+        xmlhttp.send(formData);
+        }
+
+        function convertBase64UrlToBlob(base64){
+            var type =base64.split(",")[0].match(/:(.*?);/)[1];//提取base64头的type如 'image/png'     
+            var bytes=window.atob(base64.split(',')[1]);//去掉url的头，并转换为byte (atob:编码 btoa:解码)
+
+            //处理异常,将ascii码小于0的转换为大于0 
+            var ab = new ArrayBuffer(bytes.length);//通用的、固定长度(bytes.length)的原始二进制数据缓冲区对象
+            var ia = new Uint8Array(ab);
+            for (var i = 0; i < bytes.length; i++) {
+                ia[i] = bytes.charCodeAt(i);
+            }
+            return new Blob( [ab] , {type :type});
+        }
+
+
+        // const file = document.getElementById('uploadFile')
+        // let formData = new FormData()
+        // formData.append('file', file.files[0])
+        // const req = new XMLHttpRequest()
+        // req.onreadystatechange = function(){
+        //   if (req.readyState === 4) {
+        //     const response  = JSON.parse(req.responseText)
+        //     if (response.code === '200') {
+        //       console.log('success')
+        //     } else {
+        //       console.log('fail')
+        //     }
+        //   }
+        // }
+        // req.open('post', 'https://sxxx.com/uploadfile', true)
+        // req.send(formData)
+    </script>
+</body>
+</html>

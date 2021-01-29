@@ -1,0 +1,98 @@
+<html>
+    <body>
+        <canvas id="sinewave" width="1280" height="360"></canvas>
+        <script type="text/javascript">
+            //Demo wait function
+            function wait(ms) {
+                var d = new Date();
+                var d2 = null;
+                do { d2 = new Date(); }
+                while(d2-d < ms);
+            }
+
+            //Animation config
+            var animSpeed = 0.25;
+            var animPrecision = 64; //Higher numbers are lower precision
+
+            //Canvas properties
+            var cv = document.getElementById("sinewave");
+            var cvContext = cv.getContext("2d");
+            var cvWidth = cv.width;
+            var cvHeight = cv.height;
+            
+            //Animation properties
+            var animY = (cvHeight*0.5); //Wave vertical position, in pixels
+            var animAmplitude = (cvHeight*0.25); //Wave height, in pixels
+            var animFrequency = (1/96); //How many waves (96KHz)
+            var animPhase = 0; //The current progress of the wave during the 'for' loop
+            var animState = 0; //The progress of the wave before the 'for' loop
+            var animStep = (animFrequency*animPrecision); //How many pixels is a single loop
+
+            //Initialize wave coordinates
+            var x1 = animY, //Line starting X
+                y1 = animY, //Line starting Y
+                x2 = animY, //Line ending X
+                y2 = animY; //Line ending Y
+
+            //Initialize demo progress
+            demoState = 0;
+
+            //Animation
+            function animate() {
+                //Loop animation (play animation forever)
+                requestAnimationFrame(animate);
+
+                //Clear canvas to draw wave
+                cvContext.clearRect(0, 0, cvWidth, cvHeight);
+
+                //Draw sine wave as a series of lines
+                var animX, demoCount = 1; //Move across the screen while drawing lines
+                for (animX = demoState; animX < cvWidth; animX += animPrecision) {
+                    //Increase wave phase
+                    animPhase += animPrecision;
+
+                    //Get new coordinates to draw line
+                    x1 = animX; //Current line position
+                    y1 = animY + (Math.sin(animPhase)*animAmplitude);
+                    x2 = animX + animPrecision; //Look ahead one loop to get line end position
+                    y2 = animY + (Math.sin(animPhase + animStep)*animAmplitude);
+
+                    //Draw primary wave line
+                    cvContext.beginPath(); //Start a new line
+                    cvContext.strokeStyle = "#4DCC16"; //Set line color
+                    cvContext.lineWidth = 5; //Set line width
+                    cvContext.moveTo(x1, y1); //Line start position
+                    cvContext.lineTo(x2, y2); //Line end position
+                    cvContext.stroke(); //Draw line
+
+                    //Draw demo text
+                    cvContext.font = "18px Arial";
+                    cvContext.fillText("animX (progress) = " + animX.toString() + "px (" + ((animX/cvWidth)*100).toString() + "%)", 16, 16);
+                    cvContext.fillText("Math.sin(animPhase) = " + Math.sin(animPhase).toString(), 16, 48);
+                    cvContext.fillText("x1, y1", x1, y1);
+                    cvContext.fillText("x2, y2", x2, y2);
+
+                    //Only show demo line
+                    demoState += animPrecision;
+                    if (demoCount > 0) {
+                        demoCount--;
+
+                        if (demoCount <= 0) {
+                            break;
+                        }
+                    }
+                }
+
+                //Restart demo
+                if (demoState >= cvWidth) {
+                    demoState = 0;
+                }
+
+                wait(100/animSpeed);
+            }
+
+            //Perform animation
+            animate();
+        </script>
+    </body>
+</html>

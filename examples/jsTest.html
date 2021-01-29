@@ -1,0 +1,65 @@
+<!--
+ * @Description: 
+ * @Version: 2.0
+ * @Autor: fengjiao
+ * @Date: 2020-08-15 10:35:04
+ * @LastEditors: fengjiao
+ * @LastEditTime: 2020-12-05 12:10:18
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>JS test </title>
+    <script type="text/javascript" src="jsTest.js"></script>
+    <div id="el">点我测试</div>
+    <script type="text/javascript">
+    el.onclick = function() {
+        console.log("不用getElementById 也可以点击了")
+    };
+        for(var i=1;i<=100;i++){
+            for(var n=2;n<=i;n++){
+                if(i%n==0&&i!=n){
+                    break;
+                }
+                else if(i==n){
+                    document.write(i+" ");
+                }
+            }
+        }
+
+        function setName(obj){
+            var cc = 123;
+            obj.name = "xm";
+            obj = {};
+            obj.name = "hh"
+        }
+        {
+            var aa = 11;
+            let bb = 22;
+        }
+        var person = {};
+        setName(person);
+        console.log(person.name);
+        console.log(aa);
+        // console.log(cc);
+</script>
+    <style>
+        .box {
+            width: 200px;
+            border: 10px solid #99c;
+            padding: 20px;
+            margin: 50px;
+            background-color: rgb(207, 181, 181)
+        }
+
+    </style>
+</head>
+<body>
+    <div class="box"></div>
+    <input type="text">
+    
+</body>
+</html>

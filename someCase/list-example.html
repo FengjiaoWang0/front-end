@@ -1,0 +1,86 @@
+<html>
+    <body>
+        <!--Create a place for the list to be displayed-->
+        <div id="listHTML">
+            <p>Selected: <span id="listCount">0</span></p>
+        </div>
+    </body>
+
+    <!--List code-->
+    <script type="text/javascript">
+        /* 
+        Create a JSON object array of books.
+        You can add as many books as you want! :)
+        */
+        var listBooks = {
+            "books": [
+                {
+                    "id": "mere-christianity",
+                    "title": "Mere Christianity",
+                },
+                {
+                    "id": "meaning-of-marriage",
+                    "title": "The Meaning of Marriage",
+                },
+                {
+                    "id": "marriage-on-rock",
+                    "title": "Marriage on the Rock",
+                },
+            ],
+        };
+
+        /* 
+        Create empty JSON object for selected books. We'll add to this later. 
+        When some items are selected, you can query this object for information about selected items.
+        */
+        var listSelected = {};
+
+        /* Generate HTML list from JSON array */
+        window.onload = function() {
+            var listDiv = document.getElementById("listHTML");
+            var ul = document.createElement("ul");
+            listDiv.appendChild(ul);
+
+            /* This loop is only for drawing all the books in the list */
+            for (var i = 0; i < listBooks.books.length; i++) {
+                var li = document.createElement("li");
+
+                var text = document.createTextNode(listBooks.books[i].title);
+
+                /* 
+                The checkbox will use the book ID as its own HTML ID. 
+                When clicked, it will run the function select().
+                */
+                var checkbox = document.createElement("input");
+                checkbox.type = "checkbox";
+                checkbox.id = listBooks.books[i].id;
+                checkbox.onclick = function() { select(this); };
+
+                li.appendChild(text);
+                li.appendChild(checkbox);
+                ul.appendChild(li);
+            }
+        }
+
+        /* Run function when a checkbox is clicked */
+        function select(checkbox) {
+            /*
+            Here we want the book ID as a string. We can use the string as an object key.
+            Using an object for selected books means we don't need a loop!
+            */
+            var book = checkbox.id.toString();
+
+            if (checkbox.checked == true) {
+                /* If a checkbox is checked, add the book as an object key */
+                listSelected[book] = "selected"; /* You can add other information about the book here instead */
+            } else {
+                /* If a checkbox is unchecked, remove the book key */
+                delete listSelected[book];
+            }
+
+            /* Update the selected book count by checking the number of keys in the listSelected object */
+            var span = document.getElementById("listCount");
+            span.textContent = Object.keys(listSelected).length.toString();
+        }
+    </script>
+</html>

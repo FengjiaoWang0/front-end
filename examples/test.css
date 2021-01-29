@@ -1,0 +1,42 @@
+.tooltip {
+    position: relative;
+    display: inline-block;
+    border-bottom: 1px dotted black;
+}
+
+.tooltip .tooltiptext {
+    visibility: hidden;
+    width: 120px;
+    background-color: black;
+    color: #fff;
+    text-align: center;
+    border-radius: 6px;
+    padding: 5px 0;
+
+    /* 定位 */
+    position: absolute;
+    z-index: 1;
+}
+
+.tooltip:hover .tooltiptext {
+    visibility: visible;
+}
+
+.box1 {
+    background-color: #00ff00;
+    height: 120px;
+    width: 120px;
+    margin:10px;
+    /* display: inline-block; */
+    /* margin:10px 10px 30px 40px; */
+}
+.box {
+    border: 5px dotted #101412;
+    height: 100px;
+    width:100px;
+    /* display: inline-block; */
+    margin: 20px;
+    padding: 5px;
+    background-color:#00ff00
+}
+

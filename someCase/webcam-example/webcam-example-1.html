@@ -1,0 +1,65 @@
+<html>
+<body>
+    <div id="preview">
+        <h1>Preview:</h1>
+        <video id="video" width="640" height="480" style="background-color: black;" autoplay></video>
+        <br>
+        <button id="snap" onclick="takePhoto()">Take Photo</button>
+    </div>
+    <br>
+    <div id="result" style="word-break: break-all;">
+        <h1>Photo:</h1>
+        <div id="photo" style="display: block; width: 640px; height: 480px; background-color: black;"></div>
+        <br>
+        <h1>Base64:</h1>
+        <p id="base64"></p>
+    </div>
+
+    <script type="text/javascript">
+    // Show available camera features in the web developer console log
+    console.log(navigator.mediaDevices.getSupportedConstraints());
+
+    // Choose a camera that has these features
+    const constraints = {
+        video: true, 
+        //audio: true,
+        facingMode: 'user', // 'user' for front camera, 'environment' for rear camera
+    };
+    
+    // Get video element
+    var video = document.getElementById('video');
+
+    // Show live camera in video element
+    if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+        navigator.mediaDevices.getUserMedia(constraints).then(function(stream) {
+            video.srcObject = stream;
+            video.play();
+        });
+    }
+
+    // Take photo
+    function takePhoto() {
+        // Create canvas for drawing video snapshot
+        var canvas = document.createElement('canvas');
+        canvas.id     = "temp";
+        canvas.width  = 640;
+        canvas.height = 480;
+        var context = canvas.getContext('2d');
+
+        // Draw the current contents of the video to a canvas
+        var video = document.getElementById('video');
+        context.drawImage(video, 0, 0, 640, 480);
+
+        // Convert canvas to base64 (also an image)
+        var image = new Image();
+        image.src = canvas.toDataURL("image/png");
+
+        // Show image
+        document.getElementById("photo").appendChild(image);
+
+        // Show base64
+        document.getElementById("base64").innerHTML = image.src;
+    }
+    </script>
+</body>
+</html>
